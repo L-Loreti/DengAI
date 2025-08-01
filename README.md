@@ -6,4 +6,4 @@ Os parâmetros para treinamento são basicamente dados climáticos, como um índ
 
 Como exemplo, abaixo vemos os dados do **total de casos** de dengue, e da **temperatura máxima**,
 
-<img width="845" height="556" alt="image" src="https://github.com/L-Loreti/DengAI/blob/main/Total%20de%20casos%20x%20temperatura%20m%C3%A1xima.png" \>
+<img width="1431" height="514" alt="Image" src="https://github.com/user-attachments/assets/efbb4333-7788-461d-b27f-4558d371949a" />
