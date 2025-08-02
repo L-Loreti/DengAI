@@ -93,7 +93,10 @@ A métrica utilizada para avaliar o ajuste do modelo aos dados de treinamento e 
 
 **MAE - Validação**: 28.61
 
-Em todos os testes realizados, o modelo retornou predições superestimadas, então, minha ideia foi tratar tais predições de modo a abaixá-las. Para isso, utilizei médias móveis.
+Em todos os testes realizados para a cidade **San Juan**, o modelo retornou predições superestimadas, enquanto que para **Iquitos** as predições estavam com um MAE pequeno, em torno de 8, como por ser visto no gráfico abaixo.
+
+
+, então, minha ideia foi tratar tais predições de modo a abaixá-las. Para isso, utilizei médias móveis.
 
 ## ``iv.`` Ajuste dos resultados com médias móveis
 
