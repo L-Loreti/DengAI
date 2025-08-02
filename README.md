@@ -14,26 +14,40 @@ Ao invés de verificar visualmente quais parâmetros se correlacionam com a vari
 <img width="700" height="600" alt="Image" src="https://github.com/user-attachments/assets/f82a9e66-ba9b-4abd-a960-2361684e419f" />
 </p>
 
-Praticamente todos os parâmetros **não apresentam** grande correlação com o total de casos, portanto, foi necessário estabelecer um **valor mínimo** para que os parâmetros fossem filtrados. Tal limite foi de **10 %**. E assim, os seguintes parâmetros foram escolhidos, por cidade:
+Praticamente todos os parâmetros **não apresentam** grande correlação com o total de casos, portanto, foi necessário estabelecer um **valor mínimo** para que os parâmetros fossem filtrados. Tal limite foi de **10 %** para os dados das duas cidades, pois caso fosse maior, poucos parâmetros comporiam o modelo. Abaixo relaciono os parâmetros escolhidos, por cidade:
 
-### ``San Juan``
-- ``reanalysis_air_temp_k``
-- ``reanalysis_avg_temp_k``
-- ``reanalysis_dew_point_temp_k``
-- ``reanalysis_max_air_temp_k``
-- ``reanalysis_min_air_temp_k``
-- ``reanalysis_precip_amt_kg_per_m2``
-- ``reanalysis_relative_humidity_percent``
-- ``reanalysis_specific_humidity_g_per_kg``
-- ``station_avg_temp_c``
-- ``station_max_temp_c``
-- ``station_min_temp_c``
+### ``San Juan (11 parâmetros)``
+- _reanalysis_air_temp_k_
+- _reanalysis_avg_temp_k_
+- _reanalysis_dew_point_temp_k_
+- _reanalysis_max_air_temp_k_
+- _reanalysis_min_air_temp_k_
+- _reanalysis_precip_amt_kg_per_m2_
+- _reanalysis_relative_humidity_percent_
+- _reanalysis_specific_humidity_g_per_kg_
+- _station_avg_temp_c_
+- _station_max_temp_c_
+- _station_min_temp_c_
+
+### ``Iquitos (8 parâmetros)``
+
+- _reanalysis_dew_point_temp_k_
+- _reanalysis_min_air_temp_k_
+- _reanalysis_precip_amt_kg_per_m2_
+- _reanalysis_relative_humidity_percent_
+- _reanalysis_specific_humidity_g_per_kg_
+- _reanalysis_tdtr_k_
+- _station_avg_temp_c_
+- _station_min_temp_c_
 
 ## ``ii.`` Treinamento da rede neural
 
-Para tentar predizer o total de casos, utilizei o modelo ``Sequential`` da biblioteca ``Keras`` adicionando três camadas densas com 16, 8 e 1 neurônios, respectivamente. Outras arquiteturas foram testadas, como por exemplo (64,32,1), (34,32,16,1), porém, a arquitetura mencionada anteriormente apresentou os melhores resultados.
+Para tentar predizer o total de casos, utilizei o modelo ``Sequential`` da biblioteca ``Keras`` adicionando três camadas densas com _16_, _8_ e _1_ neurônios, respectivamente. Outras arquiteturas foram testadas, como por exemplo _(64,32,1)_, _(64,32,16,1)_, porém, a arquitetura mencionada anteriormente apresentou os melhores resultados.
 
 ```python
+from keras.models import Sequential
+from keras.layers import Dense
+
 model = Sequential()
 
 model.add(Dense(units = 16, activation = keras.layers.LeakyReLU()))
@@ -44,5 +58,27 @@ model.compile(optimizer = keras.optimizers.Adam(), loss = keras.losses.MeanSquar
               metrics = [keras.losses.MeanAbsoluteError()])
 ```
 
-A função de ativação utilizada foi a **LeakyReLU** para evitar a morte de neurônios.
+A função de ativação utilizada foi a **LeakyReLU** para evitar a morte de neurônios. 
 
+O conjunto de dados disponibilizado pelo <a href="https://www.drivendata.org/competitions/44/dengai-predicting-disease-spread/page/80/">site<a/> foi dividido em 70% para treinamento e 30% para validação.
+
+```Python
+from sklearn.model_selection import train_test_split
+
+xTrainNorm, xValNorm, yTrainNorm, yValNorm = train_test_split(labelsArrayNorm_training, featureArrayNorm_training,
+                                                              test_size = 0.30, shuffle = False)
+```
+
+Onde ``labelsArrayNorm_training`` e ``featureArrayNorm_training`` são uma matriz contendo os parâmetros escolhidos para treinamento, e a variável que queremos predizer, respectivamente. Ambas foram normalizadas de modo a terem **média nula** e **desvio padrão unitário**, para que as importâncias dos parâmetros fossem equivalentes.
+
+Além disso, testei diferentes **janelas** de treinamento para os dados, de modo a tentar capturar comportamentos de longo prazo, no entanto, os melhores resultados foram obtidos com **window_size = 1**. Por fim, o número de **épocas** de treinamento foi escolhido como 20, pois além disso, o modelo não melhorava a _erro absoluto médio_.
+
+```python
+epochs = 20
+window_size = 1
+history = model.fit(xTrainNorm, yTrainNorm, epochs = epochs, batch_size = window_size)
+```
+
+## ``iii.`` Resultados
+
+A métrica utilizada para avaliar o ajuste do modelo aos dados de treinamento e validação foi o _Erro Absoluto Médio_ (_Mean Absolute Error - MAE_), o qual está relacionado abaixo, juntamente com duas imagens do ajuste.
