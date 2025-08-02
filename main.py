@@ -1,7 +1,6 @@
 import seaborn as sns
 
-
-# FunÁ„o para dividir o conjunto de dados de treinamento em janelas
+# Fun√ß√£o para dividir o conjunto de dados de treinamento em janelas
 def windowing(labels, features, window_size):
 
   i = 0
@@ -18,9 +17,9 @@ def windowing(labels, features, window_size):
 
   return np.array(listLabels), np.array(listFeatures)
 
-# Importa os par‚metros para ajuste (labels) e a vari·vel a ser predita (feature)
-labels = pd.read_csv("diretÛrio de armazenamento/dengue_features_train.csv")
-feature = pd.read_csv("diretÛrio de armazenamento/dengue_labels_train.csv")
+# Importa os par√¢metros para ajuste (labels) e a vari√°vel a ser predita (feature)
+labels = pd.read_csv("diret√≥rio de armazenamento/dengue_features_train.csv")
+feature = pd.read_csv("diret√≥rio de armazenamento/dengue_labels_train.csv")
 
 # Separa os labels e features por cidade
 labels_sj = labels[labels["city"] == "sj"]
@@ -33,7 +32,7 @@ feature_iq = feature[feature["city"] == "iq"]
 labels_sj_join = labels_sj.join(feature_sj['total_cases'])
 labels_iq_join = labels_iq.join(feature_iq['total_cases'])
 
-# Retira colunas que n„o fazem parte da an·lise (e escolhe qual cidade analisar)
+# Retira colunas que n√£o fazem parte da an√°lise (e escolhe qual cidade analisar)
 notUsedColumns = ['year', 'weekofyear', 'week_start_date', 'city']
 
 # San Juan
@@ -42,27 +41,26 @@ labels_join = labels_sj_join.drop(notUsedColumns, axis = 1).copy()
 # Iquitos
 # labels_join = labels_iq_join.drop(notUsedColumns, axis = 1).copy()
 
-# Plota a matriz de correlaÁ„o geral
-
-# Calcula correlaÁ„o com todos os par‚metros
+# Plota a matriz de correla√ß√£o geral
+# Calcula correla√ß√£o com todos os par√¢metros
 corrMatrix = labels_join.corr()
 
 sns.heatmap(corrMatrix, center = 0)
 
-# Filtra os par‚metro com correlaÁ„o acima de um limite
+# Filtra os par√¢metro com correla√ß√£o acima de um limite
 
-# Estabelece um limite para correlaÁ„o
+# Estabelece um limite para correla√ß√£o
 threshold = 0.10
 
-# Lista que receber· as colunas com correlaÁ„o acima do treshold
+# Lista que receber√° as colunas com correla√ß√£o acima do treshold
 columnNames = []
 
-# Encontra os par‚metros com correlaÁ„o acima do treshold
+# Encontra os par√¢metros com correla√ß√£o acima do treshold
 for col in corrMatrix.columns:
   if np.abs(corrMatrix.loc['total_cases', col]) > threshold:
     columnNames.append(col)
 
-# DataFrame que receber· a matrix de correlaÁ„o dos par‚metros significativos
+# DataFrame que receber√° a matrix de correla√ß√£o dos par√¢metros significativos
 corrMatrixSignificant = pd.DataFrame()
 
 for row in columnNames:
@@ -71,7 +69,7 @@ for row in columnNames:
 
 sns.heatmap(corrMatrixSignificant, center = 0)
 
-# Pega somente os dados dos par‚metros com correlaÁ„o significativa
+# Pega somente os dados dos par√¢metros com correla√ß√£o significativa
 labels_join_training = labels_join[columnNames]
 labels_join_training = labels_join_training.dropna()
 
@@ -83,11 +81,11 @@ feature_training = labels_join_training['total_cases'].copy()
 labelsArray_training = labels_training.to_numpy()
 featureArray_training = feature_training.to_numpy()
 
-# Reescala o conjunto de dados para ter mÈdia nula e desvio padr„o unit·rio
+# Reescala o conjunto de dados para ter m√©dia nula e desvio padr√£o unit√°rio
 labelsArrayNorm_training = (labelsArray_training - np.mean(labelsArray_training, axis = 0))/np.std(labelsArray_training, axis = 0)
 featureArrayNorm_training = (featureArray_training - np.mean(featureArray_training, axis = 0))/np.std(featureArray_training, axis = 0)
 
-# Separa o conjunto de treinamento e validaÁ„o
+# Separa o conjunto de treinamento e valida√ß√£o
 from sklearn.model_selection import train_test_split
 
 xTrainNorm, xValNorm, yTrainNorm, yValNorm = train_test_split(labelsArrayNorm_training, featureArrayNorm_training, test_size = 0.30, shuffle = False)
@@ -99,7 +97,6 @@ xTrainNorm_windowed, yTrainNorm_windowed = windowing(xTrainNorm, yTrainNorm, win
 # Declara a rede neural
 from keras.models import Sequential
 from keras.layers import Dense
-import tensorflow as tf
 
 model = Sequential()
 
@@ -116,27 +113,27 @@ model.summary()
 epochs = 20
 history = model.fit(xTrainNorm_windowed, yTrainNorm_windowed, epochs = epochs, batch_size = window_size)
 
-# Prediz para o conjunto de treinamento e validaÁ„o
+# Prediz para o conjunto de treinamento e valida√ß√£o
 predNormTrain = model.predict(xTrainNorm)
 predNormVal = model.predict(xValNorm)
 
-# Retorna os dados ‡ escala original
+# Retorna os dados √† escala original
 predTrain = predNormTrain*np.std(featureArray_training, axis = 0) + np.mean(featureArray_training, axis = 0)
 predVal = predNormVal*np.std(featureArray_training, axis = 0) + np.mean(featureArray_training, axis = 0)
 yTrain = yTrainNorm*np.std(featureArray_training, axis = 0) + np.mean(featureArray_training, axis = 0)
 yVal = yValNorm*np.std(featureArray_training, axis = 0) + np.mean(featureArray_training, axis = 0)
 
-# Verifica o MAE para dados de treino e validaÁ„o
+# Verifica o MAE para dados de treino e valida√ß√£o
 from sklearn.metrics import mean_absolute_error
 
 print(f"MAE - Treinamento: {mean_absolute_error(predTrain, yTrain)}")
-print(f"MAE - ValidaÁ„o: {mean_absolute_error(predVal, yVal)}")
+print(f"MAE - Valida√ß√£o: {mean_absolute_error(predVal, yVal)}")
 
 #################
 # PARA SAN JUAN #
 #################
 
-# Calcula a mÈdia mÛvel
+# Calcula a m√©dia m√≥vel
 import pandas as pd
 
 dfVal = pd.DataFrame({'Predictions': [i[0] for i in predVal]})
@@ -146,13 +143,14 @@ rollAvgVal = dfVal['rolling average'].to_numpy()
 # Verifica o MAE
 print(f"MAE: {mean_absolute_error(rollAvgVal, yVal)}")
 
-# Ajuste das prediÁıes com base na diferenÁa entre os valores da mÈdia mÛvel, e os dados reais
-# Calcula a diferenÁa entre as prediÁıes suavizadas e os dados de validaÁ„o
+# Ajuste das predi√ß√µes com base na diferen√ßa entre os valores da m√©dia m√≥vel, e os dados reais
+# Calcula a diferen√ßa entre as predi√ß√µes suavizadas e os dados de valida√ß√£o
 dif = rollAvgVal - yVal
-# Toma a mÈdia da diferenÁa pois ser· utilizada para rebaixar os dados de teste
+# Toma a m√©dia da diferen√ßa pois ser√° utilizada para rebaixar os dados de teste
 meanDif = np.mean(dif)
-# Rebaixa os dados da prediÁ„o pela mÈdia da diferenÁa
+# Rebaixa os dados da predi√ß√£o pela m√©dia da diferen√ßa
 rollAvgVal_mod = rollAvgVal - meanDif
 
 # Verifica o MAE final
+
 print(f"MAE: {mean_absolute_error(rollAvgVal_mod, yVal)}")
