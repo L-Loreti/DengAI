@@ -82,3 +82,20 @@ history = model.fit(xTrainNorm, yTrainNorm, epochs = epochs, batch_size = window
 ## ``iii.`` Resultados
 
 A métrica utilizada para avaliar o ajuste do modelo aos dados de treinamento e validação foi o _Erro Absoluto Médio_ (_Mean Absolute Error - MAE_), o qual está relacionado abaixo, juntamente com duas imagens do ajuste.
+
+- ``Conjunto de treinamento``
+<img width="8809" height="3185" alt="Image" src="https://github.com/user-attachments/assets/e168cf8a-2e34-4411-9de0-daf3843bb70f" />
+
+- ``Conjunto de validação``
+<img width="8809" height="3081" alt="Image" src="https://github.com/user-attachments/assets/6767ed86-3f64-4406-aad6-80819dcb0e0a" />
+
+MAE - Treinamento: 29.435886913043664
+MAE - Validação: 28.613196114657676
+
+## ``iv.`` Ajuste dos resultados com médias móveis
+
+<img width="8785" height="3097" alt="Image" src="https://github.com/user-attachments/assets/f8cbf01a-ca57-499a-97b4-8fa05ad5dad0" />
+MAE: 27.78
+
+<img width="8833" height="3113" alt="Image" src="https://github.com/user-attachments/assets/1155cfa4-a4ab-4b0d-99ce-b05218d41ad0" />
+MAE: 16.67
