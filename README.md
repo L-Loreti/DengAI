@@ -81,22 +81,33 @@ history = model.fit(xTrainNorm, yTrainNorm, epochs = epochs, batch_size = window
 
 ## ``iii.`` Resultados
 
-A métrica utilizada para avaliar o ajuste do modelo aos dados de treinamento e validação foi o _Erro Absoluto Médio_ (_Mean Absolute Error - MAE_), o qual está relacionado abaixo, juntamente com duas imagens do ajuste.
+A métrica utilizada para avaliar o ajuste do modelo aos dados de treinamento e validação foi o _Erro Absoluto Médio_ (_Mean Absolute Error - MAE_), o qual está relacionado abaixo, juntamente com duas imagens do ajuste para a cidade de **San Juan**.
 
-- ``Conjunto de treinamento``
-<img width="8809" height="3185" alt="Image" src="https://github.com/user-attachments/assets/e168cf8a-2e34-4411-9de0-daf3843bb70f" />
+- ``San Juan - Conjunto de treinamento``
+<img width="8865" height="3289" alt="Image" src="https://github.com/user-attachments/assets/0478ba04-3e35-4999-83f2-f05e243cfdce" />
 
-**MAE - Treinamento**: 29.44
+**MAE - Treinamento**: 28.45
 
-- ``Conjunto de validação``
-<img width="8809" height="3081" alt="Image" src="https://github.com/user-attachments/assets/6767ed86-3f64-4406-aad6-80819dcb0e0a" />
+- ``San Juan - Conjunto de validação``
+<img width="8785" height="3281" alt="Image" src="https://github.com/user-attachments/assets/cd5bbf17-6c08-42ab-ac80-54882c7821a2" />
 
-**MAE - Validação**: 28.61
+**MAE - Validação**: 26.19
 
-Em todos os testes realizados para a cidade **San Juan**, o modelo retornou predições superestimadas, enquanto que para **Iquitos** as predições estavam com um MAE pequeno, em torno de 8, como por ser visto no gráfico abaixo.
+Em todos os testes realizados para a cidade **San Juan**, o modelo retornou predições superestimadas, enquanto que para **Iquitos** as predições estavam com um MAE pequeno, como por ser visto no gráfico abaixo.
 
+- ``Iquitos - Conjunto de treinamento``
 
-, então, minha ideia foi tratar tais predições de modo a abaixá-las. Para isso, utilizei médias móveis.
+<img width="8761" height="3273" alt="Image" src="https://github.com/user-attachments/assets/a7c40c99-2c4c-4ad5-93cf-9ddde9552143" />
+
+**MAE - Treinamento**: 4.65
+
+- ``Iquitos - Conjunto de validação``
+
+<img width="8729" height="3257" alt="Image" src="https://github.com/user-attachments/assets/6d871457-503c-4dc4-a7d8-5eabeddca7bb" />
+
+**MAE - Validação**: 7.87
+
+Para melhorar as predições para **San Juan**, tentei abaixá-las utilizando médias móveis, como descrito no próximo tópico.
 
 ## ``iv.`` Ajuste dos resultados com médias móveis
 
@@ -109,14 +120,13 @@ dfVal = pd.DataFrame({'Predictions': [i[0] for i in predVal]})
 dfVal['rolling average'] = dfVal.rolling(7, min_periods = 1).mean()
 rollAvgVal = dfVal['rolling average'].to_numpy()
 ```
-
 Onde ``predVal`` é um ``array`` dos valores preditos pelo modelo, já **desnormalizados**.
 
 Da figura abaixo, vemos a média móvel junto com as predições.
 
-<img width="8785" height="3097" alt="Image" src="https://github.com/user-attachments/assets/f8cbf01a-ca57-499a-97b4-8fa05ad5dad0" />
+<img width="8825" height="3289" alt="Image" src="https://github.com/user-attachments/assets/16dca176-a297-44c4-9ca8-98f22640af7a" />
 
-Já nesse caso, somente com a suavização da curva devido à média móvel, a métrica *MAE* é reduzida para 27.78.
+Já nesse caso, somente com a suavização da curva devido à média móvel, a métrica *MAE* é reduzida para 24.93.
 
 O intuito agora é calcular a diferença média entre os valores da média móvel, e os dados reais, e subtraí-la dos valores da média móvel rebaixando-a.
 
@@ -129,6 +139,6 @@ meanDif = np.mean(dif)
 rollAvgVal_mod = rollAvgVal - meanDif
 ```
 
-Do gráfico abaixo vemos o resultado, com **MAE**: 16.67.
+Do gráfico abaixo vemos o resultado, com **MAE**: 17.62.
 
-<img width="8833" height="3113" alt="Image" src="https://github.com/user-attachments/assets/1155cfa4-a4ab-4b0d-99ce-b05218d41ad0" />
+<img width="8761" height="3257" alt="Image" src="https://github.com/user-attachments/assets/0215b92d-6840-4072-9681-5c484d647c3d" />
